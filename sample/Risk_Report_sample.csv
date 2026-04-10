@@ -1,0 +1,28 @@
+Risk Category,Details,CVE,CWE,Severity
+protocol,"TLS1_3: not offered + downgraded to weaker protocol",,,
+protocol,"QUIC: not offered",,,
+protocol,"NPN: not offered",,,
+protocol,"ALPN: http/1.1",,,,
+cipher,"cipherlist_OBSOLETED: offered",,CWE-310,LOW
+cipher,"cipherlist_STRONG_NOFS(AEAD): not offered",,,INFO
+cipher,"cipherlist_STRONG_FS(AEAD): not offered",,,MEDIUM
+cipher_suite,"cipher_order-tls1_2: cipher order not set",,,
+cipher_suite,"TLSv1.2   x35     AES256-SHA                        RSA        AES         256      TLS_RSA_WITH_AES_256_CBC_SHA",,,
+cipher_suite,"TLSv1.2   x2f     AES128-SHA                        RSA        AES         128      TLS_RSA_WITH_AES_128_CBC_SHA",,,
+forward_secrecy,"FS: No ciphers supporting Forward Secrecy offered",,,MEDIUM
+certification,"cert_subjectAltName: No SAN, browsers are complaining",,,HIGH
+certification,"cert_trust: via CN only",,,HIGH
+certification,"cert_chain_of_trust: failed (self signed).",,,CRITICAL
+certification,"cert_revocation: Neither CRL nor OCSP URI provided",,,HIGH
+certification,"OCSP_stapling: not offered",,,
+HTTP_header,"HSTS",,,LOW
+HTTP_header,"HPKP: No support for HTTP Public Key Pinning",,,
+HTTP_header,"server version: Apache/2.4.52 (Ubuntu)",,,
+HTTP_header,"security_headers",,,MEDIUM
+vulnerabilities,"BREACH: potentially VULNERABLE, gzip HTTP compression detected  - only supplied '/' tested",CVE-2013-3587,CWE-310,MEDIUM
+vulnerabilities,"DROWN_hint: Make sure you don't use this certificate elsewhere with SSLv2 enabled services, see https://search.censys.io/search?resource=hosts&virtual_hosts=INCLUDE&q=C29E843737B2FBE1EC281431757DC5B2CD9C9C73577E12D81A0CE62832F4F297",CVE-2016-0800 CVE-2016-0703,CWE-310,INFO
+vulnerabilities,"LUCKY13: potentially vulnerable, uses TLS CBC ciphers",CVE-2013-0169,CWE-310,LOW
+overall_grade,"overall_grade: T",,,CRITICAL
+overall_grade,"grade_cap_reason_1: Grade capped to T. Issues with chain of trust (self signed)",,,INFO
+overall_grade,"grade_cap_reason_2: Grade capped to B. Forward Secrecy (FS) is not supported",,,INFO
+overall_grade,"grade_cap_warning_1: TLS 1.3 is not supported",,,INFO
