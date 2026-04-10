@@ -41,7 +41,6 @@ jq -c '.[]' "$json_file" | while read -r entry; do
 	    fi
     fi
 
-
 	# ALPN이 HTTP/2, HTTP/3를 지원하지 않는 경우 취약으로 분류
     if [[ "$id" == "ALPN" ]]; then
     	case "$finding" in
