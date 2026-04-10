@@ -174,6 +174,8 @@ bash testssl_analyzer.sh
 
 **3. 자동 교정 및 Apache 재시작** (웹 서버 Ubuntu에서 실행)  
 
+스크립트 파일이 위치한 디렉토리(/opt/testssl)에서 실행합니다.  
+
 ```bash
 bash run_all.sh
 ```
