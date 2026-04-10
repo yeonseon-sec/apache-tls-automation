@@ -14,7 +14,7 @@ echo "Risk Category,Details,CVE,CWE,Severity" > "$output_csv"
 
 # 서명 알고리즘 분류 기준
 critical_signatures=("SHA1" "MD5" "SHA" "DSA" "DH")                   # 취약하거나 비권장된 서명 알고리즘
-safe_signatures=("RSA-PSS" "ECDSA" "SHA256" "SHA384" "Ed25519")				# 안전한 서명 알고리즘
+safe_signatures=("RSA-PSS" "ECDSA" "SHA256" "SHA384" "Ed25519")		  # 안전한 서명 알고리즘
 safe_ciphers=("TLS_AES_256_GCM_SHA384" "TLS_AES_128_GCM_SHA256" "TLS_CHACHA20_POLY1305_SHA256" "ECDHE_ECDSA_WITH_AES_256_GCM_SHA384" "ECDHE_ECDSA_WITH_AES_128_GCM_SHA256" "ECDHE_RSA_WITH_AES_256_GCM_SHA384" "ECDHE_RSA_WITH_AES_128_GCM_SHA256" "ECDHE_RSA_WITH_CHACHA20-POLY1305" "ECDHE_ECDSA_WITH_CHACHA20-POLY1305")    # 안전한 암호 스위트 목록
 
 # jq로 JSON 배열을 한 줄씩 읽어 항목별로 분석
