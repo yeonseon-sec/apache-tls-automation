@@ -15,7 +15,7 @@ Apache 웹 서버의 TLS 설정을 점검하고 취약하거나 비권장된 보
 - 진단 서버: Kali linux 2024.4
 - 가상화 도구: VMware Workstation
 - 진단 도구: testssl.sh (외부 오픈소스 TLS 진단 도구)
-- 언어: Bash (shell script)  
+- 언어: Bash shell script  
 
 testssl.sh를 선택한 이유는 OpenSSL과 Nmap이 개별 항목 확인에는 유용하지만 다양한 항목을 통합적으로 분석하기에는 한계가 있기 때문입니다.  
 testssl.sh는 TLS 구성 요소를 한 번에 점검하고 취약 여부를 체계적으로 분류하여 제공하기 때문에 자동화된 분석과 후속 교정에 적합하다고 판단했습니다.
