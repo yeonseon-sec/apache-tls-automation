@@ -2,7 +2,7 @@ Risk Category,Details,CVE,CWE,Severity
 protocol,"TLS1_3: not offered + downgraded to weaker protocol",,,
 protocol,"QUIC: not offered",,,
 protocol,"NPN: not offered",,,
-protocol,"ALPN: http/1.1",,,,
+protocol,"ALPN: http/1.1",,,
 cipher,"cipherlist_OBSOLETED: offered",,CWE-310,LOW
 cipher,"cipherlist_STRONG_NOFS(AEAD): not offered",,,INFO
 cipher,"cipherlist_STRONG_FS(AEAD): not offered",,,MEDIUM
