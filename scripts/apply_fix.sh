@@ -7,10 +7,10 @@
 # =============================================================
 
 # 주요 파일 경로 변수 정의
-RISK_FILE="/opt/testssl/Risk_Report.csv"								                # testssl_analyzer.sh가 생성한 취약 항목 분석 결과 파일
+RISK_FILE="/opt/testssl/Risk_Report.csv"								    # testssl_analyzer.sh가 생성한 취약 항목 분석 결과 파일
 APACHE_SSL_CONF="/etc/apache2/sites-available/default-ssl.conf"			    # Apache SSL 설정 파일(교정 대상)
-SECURITY_CONF="/etc/apache2/conf-available/security.conf"				        # Apache 보안 설정 파일
-BACKUP_FILE="/etc/apache2/mods-available/ssl.conf.bak.$(date +%F_%T)"	  # 교정 전 원본 설정 파일 백업 경로(날짜, 시간 포함)
+SECURITY_CONF="/etc/apache2/conf-available/security.conf"				      # Apache 보안 설정 파일
+BACKUP_FILE="/etc/apache2/mods-available/ssl.conf.bak.$(date +%F_%T)"	    # 교정 전 원본 설정 파일 백업 경로(날짜, 시간 포함)
 
 # 1. 설정 파일 백업
 
