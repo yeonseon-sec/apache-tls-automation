@@ -13,15 +13,10 @@
 WORK_DIR="/opt/testssl"
 cd "$WORK_DIR" || exit 1
 
-
 # 1. apply_fix.sh에 실행 권한을 부여하고 실행
 
-# chmod +x: 실행 권한이 없는 경우를 대비한 사전 처리
-# apply_fix.sh: Risk_Report.csv 기반으로 Apache TLS 설정을 자동 교정
-
-chmod +x apply_fix.sh
-./apply_fix.sh
-
+chmod +x apply_fix.sh   # chmod +x: 실행 권한이 없는 경우를 대비한 사전 처리
+./apply_fix.sh          # apply_fix.sh: Risk_Report.csv 기반으로 Apache TLS 설정을 자동 교정
 
 # 2. 변경된 Apache 설정을 적용하기 위해 서비스 재시작
 
