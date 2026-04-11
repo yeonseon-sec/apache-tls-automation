@@ -13,9 +13,9 @@ output_csv="Risk_Report.csv"
 echo "Risk Category,Details,CVE,CWE,Severity" > "$output_csv"
 
 # 서명 알고리즘 분류 기준
-critical_signatures=("SHA1" "MD5" "SHA" "DSA" "DH")                   # 취약하거나 비권장된 서명 알고리즘
-safe_signatures=("RSA-PSS" "ECDSA" "SHA256" "SHA384" "Ed25519")		  # 안전한 서명 알고리즘
-safe_ciphers=("TLS_AES_256_GCM_SHA384" "TLS_AES_128_GCM_SHA256" "TLS_CHACHA20_POLY1305_SHA256" "ECDHE_ECDSA_WITH_AES_256_GCM_SHA384" "ECDHE_ECDSA_WITH_AES_128_GCM_SHA256" "ECDHE_RSA_WITH_AES_256_GCM_SHA384" "ECDHE_RSA_WITH_AES_128_GCM_SHA256" "ECDHE_RSA_WITH_CHACHA20-POLY1305" "ECDHE_ECDSA_WITH_CHACHA20-POLY1305")    # 안전한 암호 스위트 목록
+critical_signatures=("SHA1" "MD5" "SHA" "DSA" "DH")							# 취약하거나 비권장된 서명 알고리즘
+safe_signatures=("RSA-PSS" "ECDSA" "SHA256" "SHA384" "Ed25519")				# 안전한 서명 알고리즘
+safe_ciphers=("TLS_AES_256_GCM_SHA384" "TLS_AES_128_GCM_SHA256" "TLS_CHACHA20_POLY1305_SHA256" "ECDHE_ECDSA_WITH_AES_256_GCM_SHA384" "ECDHE_ECDSA_WITH_AES_128_GCM_SHA256" "ECDHE_RSA_WITH_AES_256_GCM_SHA384" "ECDHE_RSA_WITH_AES_128_GCM_SHA256" "ECDHE_RSA_WITH_CHACHA20-POLY1305" "ECDHE_ECDSA_WITH_CHACHA20-POLY1305")										  # 안전한 암호 스위트 목록
 
 # jq로 JSON 배열을 한 줄씩 읽어 항목별로 분석
 jq -c '.[]' "$json_file" | while read -r entry; do
@@ -27,15 +27,15 @@ jq -c '.[]' "$json_file" | while read -r entry; do
 
     # 1. 프로토콜 점검
 	
-	# TLS 1.2, 1.3이 지원되지 않거나 QUIC, ALPN, NPN이 미제공인 경우 취약으로 분류
-    if [[ "$id" == "TLS1_2" || "$id" == "TLS1_3" || "$id" == "QUIC" || "$id" == "ALPN" || "$id" == "NPN" ]]; then
+	# TLS 1.2, 1.3이 지원되지 않거나 QUIC, NPN이 미제공인 경우 취약으로 분류
+    if [[ "$id" == "TLS1_2" || "$id" == "TLS1_3" || "$id" == "QUIC" || "$id" == "NPN" ]]; then
 	    if [[ "$finding" == *"not offered"* ]]; then
 	        echo "protocol,\"$id: $finding\",,," >> "$output_csv"
 	    fi
     fi
 
 	# SSLv2, SSLv3, TLS 1.0, TLS 1.1이 활성화된 경우 취약으로 분류
-    if [[ "$id" == "TLS1" || "$id" == "TLS1_1" || "$id" == "SSv2" || "$id" == "SSv3" ]]; then
+    if [[ "$id" == "TLS1" || "$id" == "TLS1_1" || "$id" == "SSLv2" || "$id" == "SSLv3" ]]; then
 	    if [[ "$finding" != *"not offered"* ]]; then
 	        echo "protocol,\"$id: $finding\",,," >> "$output_csv"
 	    fi
@@ -45,7 +45,7 @@ jq -c '.[]' "$json_file" | while read -r entry; do
     if [[ "$id" == "ALPN" ]]; then
     	case "$finding" in
             *h2*|*h3*|*http/2*|*http/3*) ;;		# 지원하면 정상, 아무것도 하지 않음
-            *) echo "protocol,\"$id: $finding\",,,," >> "$output_csv" ;;
+            *) echo "protocol,\"$id: $finding\",,," >> "$output_csv" ;;
     	esac
     fi
 
@@ -86,7 +86,7 @@ jq -c '.[]' "$json_file" | while read -r entry; do
 	
 	# 서명 알고리즘이 안전한 목록에 없으면 비권장 서명으로 분류
     if [[ "$id" == *signatureAlgorithm* ]]; then
-	    is_safe=false
+	    is_safe=false		# JSON 항목마다 초기화하여 이전 루프의 판단 결과가 남지 않도록 함
         for sig in "${safe_signatures[@]}"; do
             if [[ "$finding" == *"$sig"* ]]; then
                 is_safe=true
@@ -98,8 +98,8 @@ jq -c '.[]' "$json_file" | while read -r entry; do
   	        echo "signature_algorithm,\"Non-recommended signature: $finding\",,," >> "$output_csv"
 	    fi
 		
-		# 취약한 서명 알고리즘이 단독으로 사용된 경우 위험으로 분류
-	    is_weak=false
+		
+	    is_weak=false		# 위와 동일한 이유로 초기화
         for weak in "${critical_signatures[@]}"; do
             if [[ "$finding" == "$weak" ]]; then
 	            is_weak=true
@@ -118,7 +118,7 @@ jq -c '.[]' "$json_file" | while read -r entry; do
     if [[ "$id" == *keySize* ]]; then
         read -ra parts <<< "$finding"
         if [[ ${#parts[@]} -ge 2 ]]; then
-            if (( parts[1] > 0 || parts[1] == 0 )); then
+            if [[ "${parts[1]}" -ge 0 ]] 2>/dev/null; then
                 algo="${parts[0]}"
                 key_size="${parts[1]}"
                 if [[ "$algo" == "RSA" && "$key_size" -lt 2048 ]]; then
@@ -135,12 +135,9 @@ jq -c '.[]' "$json_file" | while read -r entry; do
 	
 	# SAN, 신뢰 체인, DNS, OCSP 관련 항목 중 심각도가 있는 경우 취약으로 분류
     if [[ "$id" == *subjectAltName* || "$id" == *trust* || "$id" == *DNS* || "$finding" == *OCSP* ]]; then
-        for sev in "${severities[@]}"; do
-            if [[ "$severity" == "$sev" ]]; then
-                echo "certification,\"$id: $finding\",,,$severity" >> "$output_csv"
-                break
-            fi
-        done
+        if [[ "$severity" != "OK" && "$severity" != "INFO" && -n "$severity" ]]; then
+			echo "certification,\"$id: $finding\",,,$severity" >> "$output_csv"
+        fi
     fi
 
 	# OCSP Stapling이 미지원인 경우 취약으로 분류
@@ -169,12 +166,9 @@ jq -c '.[]' "$json_file" | while read -r entry; do
 
 	# 기타 HTTP 보안 헤더 항목 중 심각도가 있는 경우 취약으로 분류
     if [[ "$id" == *headers* ]]; then
-        for sev in "${severities[@]}"; do
-            if [[ "$severity" == "$sev" ]]; then
-                echo "HTTP_header,\"$id\",,,$severity" >> "$output_csv"
-                break
-            fi
-        done
+        if [[ "$severity" != "OK" && "$severity" != "INFO" && -n "$severity" ]]; then
+            echo "HTTP_header,\"$id\",,,$severity" >> "$output_csv"
+        fi
     fi
 
     # 8. CVE 취약점 점검
@@ -186,7 +180,7 @@ jq -c '.[]' "$json_file" | while read -r entry; do
 
     # 9. 종합 등급 점검
 
-	# testssl.sh 종합 등급 항목에 CVS에 기록
+	# testssl.sh 종합 등급 항목에 CSV에 기록
     if [[ "$id" == *grade* ]]; then
         echo "overall_grade,\"$id: $finding\",,,$severity" >> "$output_csv"
     fi
