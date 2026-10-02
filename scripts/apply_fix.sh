@@ -92,14 +92,20 @@ fi
 DH_FILE="/etc/ssl/certs/dhparam.pem"
 DH_LINE='SSLOpenSSLConfCmd DHParameters "/etc/ssl/certs/dhparam.pem"'
 
-if [[ ! -f "$DH_FILE" ]]; then
-  echo "[*] Generating DH parameters (2048-bit)..."
-  sudo openssl dhparam -out "$DH_FILE" 2048
-fi
+if grep -qiE '^cipher,"[^"]*FS[^"]*not offered' "$RISK_FILE"; then
+  if [[ ! -f "$DH_FILE" ]]; then
+    echo "[*] Generating DH parameters (2048-bit)..."
+    sudo openssl dhparam -out "$DH_FILE" 2048
+  fi
 
-if ! grep -q "$DH_LINE" "$APACHE_SSL_CONF"; then
-  sudo sed -i "/SSLCertificateKeyFile/a\\$DH_LINE" "$APACHE_SSL_CONF"
-  echo "[+] DH Parameters Applied"
+  if ! grep -q "$DH_LINE" "$APACHE_SSL_CONF"; then
+    sudo sed -i "/SSLCertificateKeyFile/a\\$DH_LINE" "$APACHE_SSL_CONF"
+    echo "[+] DH Parameters Applied"
+  else
+    echo "[+] DH Parameters already configured"
+  fi
+else
+  echo "[+] FS issue not found, skipping DH parameter configuration"
 fi
 
 # 6. HSTS 헤더 삽입
